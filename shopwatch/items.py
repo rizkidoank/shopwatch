@@ -25,3 +25,8 @@ class Product(scrapy.Item):
     name = scrapy.Field()
     price = scrapy.Field()
     currency = scrapy.Field()
+    sold_count = scrapy.Field()
+    weight = scrapy.Field()
+    condition = scrapy.Field()
+    insurance = scrapy.Field()
+    min_order = scrapy.Field()
