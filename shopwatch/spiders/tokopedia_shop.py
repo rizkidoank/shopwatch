@@ -3,6 +3,7 @@ import scrapy
 from scrapy_splash import SplashRequest
 from scrapy.selector import Selector
 from shopwatch.items import Shop,Product
+from bs4 import BeautifulSoup
 
 class TokopediaShopSpider(scrapy.Spider):
     name = "tokopedia_shop"
@@ -58,7 +59,7 @@ class TokopediaShopSpider(scrapy.Spider):
             self.product["price"] = res.css('span.price::text').extract_first().replace("Rp ", "").replace(".", "")
             self.product["currency"] = res.css('div.meta-product meta::attr("content")').extract_first()
             yield SplashRequest(
-                    url=self.product["url"],
+                    url=self.product["url"] ,
                     callback=self.parse_product,
                     endpoint='render.json',
                     args=self.splash_args)
@@ -84,8 +85,8 @@ class TokopediaShopSpider(scrapy.Spider):
     def parse_product(self, response):
         detail_info = response.css('div.detail-info dd').extract()
         self.product["sold_count"]=response.css('dd.item-sold-count').extract_first()
-        self.product["weight"]= detail_info[1]
-        self.product["insurance"]=detail_info[3]
-        self.product["condition"]=detail_info[4]
-        self.product["min_order"]=detail_info[5]
+        self.product["weight"]= BeautifulSoup(detail_info[1],'lxml').getText()
+        self.product["insurance"]=BeautifulSoup(detail_info[3],'lxml').getText()
+        self.product["condition"]=BeautifulSoup(detail_info[4],'lxml').getText()
+        self.product["min_order"]=BeautifulSoup(detail_info[5],'lxml').getText()
         yield self.product

@@ -27,6 +27,7 @@ class Product(scrapy.Item):
     currency = scrapy.Field()
     sold_count = scrapy.Field()
     weight = scrapy.Field()
+    weight_unit = scrapy.Field()
     condition = scrapy.Field()
     insurance = scrapy.Field()
     min_order = scrapy.Field()
