@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 
 # Scrapy settings for shopwatch project
@@ -22,18 +23,18 @@ NEWSPIDER_MODULE = 'shopwatch.spiders'
 ROBOTSTXT_OBEY = True
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
-CONCURRENT_REQUESTS = 16
+CONCURRENT_REQUESTS =  32
 
 # Configure a delay for requests for the same website (default: 0)
 # See http://scrapy.readthedocs.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-DOWNLOAD_DELAY = 0.5
+DOWNLOAD_DELAY = 5
 # The download delay setting will honor only one of:
 #CONCURRENT_REQUESTS_PER_DOMAIN = 16
 #CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
-COOKIES_ENABLED = False
+#COOKIES_ENABLED = 
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html
@@ -56,7 +57,7 @@ COOKIES_ENABLED = False
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
-SPLASH_URL = 'http://srv01.rizkidoank.com:8050'
+SPLASH_URL = 'http://139.162.52.199:8050'
 DOWNLOADER_MIDDLEWARES = {
     'scrapy_splash.SplashCookiesMiddleware': 723,
     'scrapy_splash.SplashMiddleware': 725,

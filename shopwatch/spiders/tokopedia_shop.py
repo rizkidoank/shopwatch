@@ -15,7 +15,6 @@ class TokopediaShopSpider(scrapy.Spider):
         'html':1,
         'images':0,
         'png':0,
-        'wait':0.5,
     }
 
     def __init__(self):
@@ -55,14 +54,15 @@ class TokopediaShopSpider(scrapy.Spider):
             self.product["shop_id"] = self.shop["shop_id"]
             self.product["url"] = res.css('div.product a::attr("href")').extract_first()
             self.product["img"] = res.css('div.product-image img::attr("src")').extract_first()
-            self.product["name"] = res.css('div.meta-product b::text').extract_first()
-            self.product["price"] = res.css('span.price::text').extract_first().replace("Rp ", "").replace(".", "")
+            self.product["name"] = res.css('div.meta-product b::text').extract_first().replace("\\"," ")
+            self.product["price"] = int(res.css('span.price::text').extract_first().replace("Rp ", "").replace(".", ""))
             self.product["currency"] = res.css('div.meta-product meta::attr("content")').extract_first()
-            yield SplashRequest(
-                    url=self.product["url"] ,
-                    callback=self.parse_product,
-                    endpoint='render.json',
-                    args=self.splash_args)
+            yield self.product
+            #yield SplashRequest(
+            #        url=self.product["url"] ,
+            #        callback=self.parse_product,
+            #        endpoint='render.json',
+            #        args=self.splash_args)
 
         if(len(elm) == 1):
             if (response.url.find("page") == -1):
@@ -84,9 +84,9 @@ class TokopediaShopSpider(scrapy.Spider):
 
     def parse_product(self, response):
         detail_info = response.css('div.detail-info dd').extract()
-        self.product["sold_count"]=response.css('dd.item-sold-count').extract_first()
+        self.product["sold_count"]=int(response.css('dd.item-sold-count::text').extract_first())
         self.product["weight"]= BeautifulSoup(detail_info[1],'lxml').getText()
         self.product["insurance"]=BeautifulSoup(detail_info[3],'lxml').getText()
         self.product["condition"]=BeautifulSoup(detail_info[4],'lxml').getText()
-        self.product["min_order"]=BeautifulSoup(detail_info[5],'lxml').getText()
+        self.product["min_order"]=int(BeautifulSoup(detail_info[5],'lxml').getText())
         yield self.product

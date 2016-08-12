@@ -1,4 +1,0 @@
-2016-08-09 00:25:55 [scrapy] INFO: Scrapy 1.1.1 started (bot: shopwatch)
-2016-08-09 00:25:55 [scrapy] INFO: Overridden settings: {'NEWSPIDER_MODULE': 'shopwatch.spiders', 'BOT_NAME': 'shopwatch', 'SPIDER_MODULES': ['shopwatch.spiders'], 'LOG_FILE': 'logs/tokopedia_shop.out', 'ROBOTSTXT_OBEY': True}
-2016-08-09 00:26:10 [scrapy] INFO: Scrapy 1.1.1 started (bot: shopwatch)
-2016-08-09 00:26:10 [scrapy] INFO: Overridden settings: {'ROBOTSTXT_OBEY': True, 'NEWSPIDER_MODULE': 'shopwatch.spiders', 'BOT_NAME': 'shopwatch', 'SPIDER_MODULES': ['shopwatch.spiders'], 'LOG_FILE': 'logs/tokopedia_shop.out'}
