@@ -57,12 +57,11 @@ class TokopediaShopSpider(scrapy.Spider):
             self.product["name"] = res.css('div.meta-product b::text').extract_first().replace("\\"," ")
             self.product["price"] = int(res.css('span.price::text').extract_first().replace("Rp ", "").replace(".", ""))
             self.product["currency"] = res.css('div.meta-product meta::attr("content")').extract_first()
-            yield self.product
-            #yield SplashRequest(
-            #        url=self.product["url"] ,
-            #        callback=self.parse_product,
-            #        endpoint='render.json',
-            #        args=self.splash_args)
+            yield SplashRequest(
+                    url=self.product["url"] ,
+                    callback=self.parse_product,
+                    endpoint='render.json',
+                    args=self.splash_args)
 
         if(len(elm) == 1):
             if (response.url.find("page") == -1):
