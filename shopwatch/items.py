@@ -20,6 +20,7 @@ class Shop(scrapy.Item):
 
 class Product(scrapy.Item):
     shop_id = scrapy.Field()
+    prod_id = scrapy.Field()
     url = scrapy.Field()
     img = scrapy.Field()
     name = scrapy.Field()
@@ -31,3 +32,4 @@ class Product(scrapy.Item):
     condition = scrapy.Field()
     insurance = scrapy.Field()
     min_order = scrapy.Field()
+    last_updated = scrapy.Field()

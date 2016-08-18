@@ -4,6 +4,10 @@ from scrapy_splash import SplashRequest
 from scrapy.selector import Selector
 from shopwatch.items import Shop,Product
 from bs4 import BeautifulSoup
+from datetime import datetime
+import re
+import pymongo
+from scrapy import settings
 
 class TokopediaShopSpider(scrapy.Spider):
     name = "tokopedia_shop"
@@ -20,6 +24,12 @@ class TokopediaShopSpider(scrapy.Spider):
     def __init__(self):
         self.shop = Shop()
         self.product = Product()
+        conn = pymongo.MongoClient(
+            host="localhost",
+            port=27017
+        )
+        self.db = conn.shopwatch
+
 
     def start_requests(self):
         for url in self.start_urls:
@@ -49,16 +59,12 @@ class TokopediaShopSpider(scrapy.Spider):
         elm = response.css('div.pagination.text-right ul li a::attr("href")').extract()
         products = response.css('#showcase-container div.grid-shop-product div.product').extract()
         for product in products:
-            self.product = Product()
             res = Selector(text=product)
+            p = Product()
             self.product["shop_id"] = self.shop["shop_id"]
-            self.product["url"] = res.css('div.product a::attr("href")').extract_first()
-            self.product["img"] = res.css('div.product-image img::attr("src")').extract_first()
-            self.product["name"] = res.css('div.meta-product b::text').extract_first().replace("\\"," ")
-            self.product["price"] = int(res.css('span.price::text').extract_first().replace("Rp ", "").replace(".", ""))
-            self.product["currency"] = res.css('div.meta-product meta::attr("content")').extract_first()
+            url = res.css('div.product a::attr("href")').extract_first()
             yield SplashRequest(
-                    url=self.product["url"] ,
+                    url=url ,
                     callback=self.parse_product,
                     endpoint='render.json',
                     args=self.splash_args)
@@ -82,10 +88,40 @@ class TokopediaShopSpider(scrapy.Spider):
                 args=self.splash_args)
 
     def parse_product(self, response):
-        detail_info = response.css('div.detail-info dd').extract()
-        self.product["sold_count"]=int(response.css('dd.item-sold-count::text').extract_first())
-        self.product["weight"]= BeautifulSoup(detail_info[1],'lxml').getText()
-        self.product["insurance"]=BeautifulSoup(detail_info[3],'lxml').getText()
-        self.product["condition"]=BeautifulSoup(detail_info[4],'lxml').getText()
-        self.product["min_order"]=int(BeautifulSoup(detail_info[5],'lxml').getText())
-        yield self.product
+        last_updated = re.split(' |,',response.css("small.product-pricelastupdated i::text").extract_first())
+        self.product["last_updated"] = last_updated[3] + " " + last_updated[5]
+        self.product["prod_id"] = response.css('#product-id::attr("value")').extract_first()
+        if ( self.db.products.find({"prod_id": self.product["prod_id"]}).count()):
+            print("Doc exists, check last_update")
+            db_last_updated = self.db.products.find_one({"prod_id": self.product["prod_id"]})["last_updated"]
+            if (datetime.strptime(self.product["last_updated"], '%d-%m-%Y %H:%M') > datetime.strptime(db_last_updated, '%d-%m-%Y %H:%M')):
+                print("Newer pages, replacing old one")
+                self.product["url"] = response.url
+                self.product["img"] = response.css('div.product-imagebig img::attr("src")').extract_first()
+                self.product["name"] = response.css('#breadcrumb-container  li.active  h2::text').extract_first()
+                self.product["price"] = int((response.css('div.product-pricetag span[itemprop="price"]::text').extract_first().replace(".", "")))
+                self.product["currency"] = response.css('div.product-pricetag span[itemprop="priceCurrency"]::attr("content")').extract_first()
+                detail_info = response.css('div.detail-info dd').extract()
+                self.product["sold_count"] = int(response.css('dd.item-sold-count::text').extract_first())
+                self.product["weight"] = BeautifulSoup(detail_info[1], 'lxml').getText()
+                self.product["insurance"] = BeautifulSoup(detail_info[3], 'lxml').getText()
+                self.product["condition"] = BeautifulSoup(detail_info[4], 'lxml').getText()
+                self.product["min_order"] = int(BeautifulSoup(detail_info[5], 'lxml').getText())
+                self.db.replace_one({"prod_id": self.product["prod_id"]},self.product)
+        else:
+            print("New doc, insert")
+            self.product["url"] = response.url
+            self.product["img"] = response.css('div.product-imagebig img::attr("src")').extract_first()
+            self.product["name"] = response.css('#breadcrumb-container  li.active  h2::text').extract_first()
+            self.product["price"] = int(
+                (response.css('div.product-pricetag span[itemprop="price"]::text').extract_first().replace(".", "")))
+            self.product["currency"] = response.css(
+                'div.product-pricetag span[itemprop="priceCurrency"]::attr("content")').extract_first()
+            detail_info = response.css('div.detail-info dd').extract()
+            self.product["sold_count"] = int(response.css('dd.item-sold-count::text').extract_first())
+            self.product["weight"] = BeautifulSoup(detail_info[1], 'lxml').getText()
+            self.product["insurance"] = BeautifulSoup(detail_info[3], 'lxml').getText()
+            self.product["condition"] = BeautifulSoup(detail_info[4], 'lxml').getText()
+            self.product["min_order"] = int(BeautifulSoup(detail_info[5], 'lxml').getText())
+            yield self.product
+

@@ -38,11 +38,11 @@ DOWNLOAD_DELAY = 5
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html
-AUTOTHROTTLE_ENABLED = True
+#AUTOTHROTTLE_ENABLED = True
 # The initial download delay
-AUTOTHROTTLE_START_DELAY = 5
+#AUTOTHROTTLE_START_DELAY = 5
 # The maximum download delay to be set in case of high latencies
-AUTOTHROTTLE_MAX_DELAY = 60
+#AUTOTHROTTLE_MAX_DELAY = 60
 # The average number of requests Scrapy should be sending in parallel to
 # each remote server
 #AUTOTHROTTLE_TARGET_CONCURRENCY = 1.0
@@ -54,10 +54,10 @@ AUTOTHROTTLE_MAX_DELAY = 60
 #HTTPCACHE_ENABLED = True
 #HTTPCACHE_EXPIRATION_SECS = 7200
 #HTTPCACHE_DIR = 'httpcache'
-#HTTPCACHE_IGNORE_HTTP_CODES = []
+#HTTPCACHE_IGNORE_HTTP_CODSES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
-SPLASH_URL = 'http://139.162.52.199:8050'
+SPLASH_URL = 'http://127.0.0.1:8050'
 DOWNLOADER_MIDDLEWARES = {
     'scrapy_splash.SplashCookiesMiddleware': 723,
     'scrapy_splash.SplashMiddleware': 725,
@@ -68,3 +68,9 @@ SPIDER_MIDDLEWARES = {
 }
 DUPEFILTER_CLASS = 'scrapy_splash.SplashAwareDupeFilter'
 HTTPCACHE_STORAGE = 'scrapy_splash.SplashAwareFSCacheStorage'
+
+ITEM_PIPELINES = {'shopwatch.pipelines.MongoDBPipeline':100, }
+
+MONGODB_SERVER = "localhost"
+MONGODB_PORT = 27017
+MONGODB_DB = "shopwatch"
