@@ -57,7 +57,7 @@ DOWNLOAD_DELAY = 5
 #HTTPCACHE_IGNORE_HTTP_CODSES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
-SPLASH_URL = 'http://127.0.0.1:8050'
+SPLASH_URL = 'http://srv01.bitlyze.net:8050'
 DOWNLOADER_MIDDLEWARES = {
     'scrapy_splash.SplashCookiesMiddleware': 723,
     'scrapy_splash.SplashMiddleware': 725,
