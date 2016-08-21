@@ -21,7 +21,7 @@ class MongoDBPipeline(object):
 
     def process_item(self, item, spider):
         if (isinstance(item,Shop)):
-            self.db.shop.insert(dict(item))
+            self.db.shops.insert(dict(item))
         elif (isinstance(item,Product)):
-            self.db.product.insert(dict(item))
+            self.db.products.insert(dict(item))
         return item
