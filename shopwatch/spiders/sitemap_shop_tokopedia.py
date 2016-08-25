@@ -111,6 +111,9 @@ class SitemapShopTokopediaSpider(SitemapSpider):
             self.product["condition"] = BeautifulSoup(detail_info[4], 'lxml').getText()
             self.product["min_order"] = int(BeautifulSoup(detail_info[5], 'lxml').getText())
             self.product['shop_id'] = response.css('#shop-id::attr("value")').extract_first()
+            self.product["num_revs"] = response.css('#p-nav-review span::text').extract_first()
+            self.product["num_discs"] = response.css('#p-nav-talk span::text').extract_first()
+            self.product["desc"] = response.css('p[itemprop = "description"]::text').extract_first()
             self.db.products.replace_one({"prod_id": self.product["prod_id"]},self.product)
         else:
             print("New doc, insert")
@@ -126,8 +129,8 @@ class SitemapShopTokopediaSpider(SitemapSpider):
             self.product["condition"] = BeautifulSoup(detail_info[4], 'lxml').getText()
             self.product["min_order"] = int(BeautifulSoup(detail_info[5], 'lxml').getText())
             self.product["shop_id"] = response.css('#shop-id::attr("value")').extract_first()
-            self.product["num-revs"] = response.css('#p-nav-review span::text').extract_first()
-            self.product["num-discs"] = response.css('#p-nav-talk span::text').extract_first()
+            self.product["num_revs"] = response.css('#p-nav-review span::text').extract_first()
+            self.product["num_discs"] = response.css('#p-nav-talk span::text').extract_first()
             self.product["desc"] = response.css('p[itemprop = "description"]::text').extract_first()
             yield self.product
 

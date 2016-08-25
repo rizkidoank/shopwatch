@@ -33,3 +33,6 @@ class Product(scrapy.Item):
     insurance = scrapy.Field()
     min_order = scrapy.Field()
     last_updated = scrapy.Field()
+    num_revs = scrapy.Field()
+    num_discs = scrapy.Field()
+    desc = scrapy.Field() 

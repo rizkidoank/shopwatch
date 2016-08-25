@@ -57,7 +57,7 @@ DOWNLOAD_DELAY = 5
 #HTTPCACHE_IGNORE_HTTP_CODSES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
-SPLASH_URL = 'http://srv01.bitlyze.net:8050'
+SPLASH_URL = 'http://localhost:8050'
 DOWNLOADER_MIDDLEWARES = {
     'scrapy_splash.SplashCookiesMiddleware': 723,
     'scrapy_splash.SplashMiddleware': 725,
@@ -74,3 +74,14 @@ ITEM_PIPELINES = {'shopwatch.pipelines.MongoDBPipeline':100, }
 MONGODB_SERVER = "localhost"
 MONGODB_PORT = 27017
 MONGODB_DB = "shopwatch"
+
+LOG_LEVEL = 'INFO'
+COOKIES_ENABLED = False
+
+
+MAIL_FROM='rizki.doank94@gmail.com'
+MAIL_HOST='smtp.gmail.com'
+MAIL_PORT='587'
+MAIL_USER='rizki.doank94@gmail.com'
+MAIL_PASS='rnm090808'
+MAIL_TLS=True
