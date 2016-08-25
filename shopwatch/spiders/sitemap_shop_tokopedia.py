@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# -*- coding: utf-8 -*-
 import scrapy
 from scrapy_splash import SplashRequest
 from scrapy.selector import Selector
