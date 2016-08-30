@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# -*- coding: utf-8 -*-
 import scrapy
 from scrapy_splash import SplashRequest
 from scrapy.selector import Selector
@@ -10,15 +9,19 @@ import re
 import pymongo
 from scrapy import settings
 from scrapy.spiders import SitemapSpider
+from shopwatch.utils import check_month
 
-class SitemapShopBukalapakSpider(SitemapSpider):
+class SitemapShopBukalapakSpider(scrapy.Spider):
     name = "sitemap_shop_bukalapak"
     allowed_domains = ["bukalapak.com"]
-    sitemap_urls = (
-        'http://www.bukalapak.com/sitemap.xml',
+    #sitemap_urls = (
+    start_urls =(
+        #'https://www.bukalapak.com/sitemap-user-1.xml',
+        'https://www.bukalapak.com/bakulgps',
     )
+    # sitemap_rules = [('/p/', 'parse_product')]
+    #sitemap_follow = ['(user)-\d*']
 
-    # sitemap_follow = ['']
     splash_args = {
         'html': 1,
         'images': 0,
@@ -37,10 +40,22 @@ class SitemapShopBukalapakSpider(SitemapSpider):
         self.db = conn.shopwatch
 
     def parse(self, response):
-        print(response.url)
-        # yield SplashRequest(
-        #     url=response.url,
-        #     callback=self.parse_product_lists,
-        #     endpoint='render.json',
-        #     args=self.splash_args
-        # )
+        username = response.css("div.user-description h5.user__name a::text").extract_first()
+        user_feedback = response.css("div.user-description a.user-feedback-summary::text").extract_first()
+        join_date = response.css("div.user-meta-join-at::text").extract_first().lower()
+        total_subscriber = response.css("div.user-meta-subscribers-total a::text").extract_first()
+        user_level = response.css("div.user-description span.user__level::text").extract_first().lower()
+        address = response.css("div.user-address::text").extract_first()
+        rejection_rate = response.css("div.user-meta-rejection-rate span::text").extract_first()
+        num_products = response.css("li.vert-nav-item a::text").extract_first()
+
+        print("username      : "+ repr(username))
+        print("url           : "+ repr(response.url))
+        print("user_lv       : "+ repr(user_level))
+        print("user-address  : "+ repr(address))
+        print("join-date     : "+ repr(join_date))
+        print("total-subs    : "+ repr(total_subscriber))
+        print("user-fb       : "+ repr(user_feedback))
+        print("reject-rate   : "+ repr(rejection_rate))
+        print("num-products  : "+ repr(num_products))
+        print("Test")
