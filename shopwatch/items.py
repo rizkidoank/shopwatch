@@ -16,7 +16,8 @@ class Shop(scrapy.Item):
     sold_products = scrapy.Field()
     total_etalase = scrapy.Field()
     total_products = scrapy.Field()
-    products = scrapy.Field()
+    uri = scrapy.Field()
+
 
 class Product(scrapy.Item):
     shop_id = scrapy.Field()
