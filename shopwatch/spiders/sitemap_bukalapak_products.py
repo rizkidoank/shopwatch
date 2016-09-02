@@ -3,7 +3,8 @@ import scrapy
 import re
 from scrapy_splash import SplashRequest
 from bs4 import BeautifulSoup
-import datetime
+from datetime import datetime
+import urllib
 
 class SitemapBukalapakProductsSpider(scrapy.Spider):
     name = "sitemap_bukalapak_products"
@@ -26,13 +27,13 @@ class SitemapBukalapakProductsSpider(scrapy.Spider):
         )
 
     def parse_product(self, response):
-        name = response.css(".product-detailed__name::text").extract_first()
+        name = response.css("[itemprop='name']::text").extract_first()
         name = re.sub("\n","",name)
 
-        price = response.css(".product-detailed-price__reduced [itemprop='price']::attr('content')").extract_first()
-        price = re.sub("[\D]","",price)
+        price = response.css("[itemprop='price']::attr('content')").extract_first()
+        price = re.sub("\D","",price)
 
-        currency = response.css(".product-detailed-price__reduced [itemprop='priceCurrency']::attr('content')").extract_first()
+        currency = response.css("[itemprop='priceCurrency']::attr('content')").extract_first()
 
         prod_spec = response.css(".product-spec dd").extract()
 
@@ -50,16 +51,25 @@ class SitemapBukalapakProductsSpider(scrapy.Spider):
 
         ratingCount = response.css("[itemprop='ratingCount']::text").extract_first()
         desc = response.css(".product-detailed-spec div > div >p").extract_first()
-        desc = BeautifulSoup(desc)
+        desc = BeautifulSoup(desc,"lxml")
         desc = str.lower(desc.getText())
 
         stats_entry = response.css(".kvp__value > strong::text").extract()
         peminat = stats_entry[0]
         dilihat = stats_entry[1]
-        last_update = str.lower(stats_entry[2])
-        today = re.compile("hari ini")
-        if(today.match(last_update)):
-            last_update = datetime.date.today()
+
+        url = "https://www.bukalapak.com/%s" % (response.css(".product-detailed-manage::attr('data-insert-inside-url')").extract_first())
+        res = urllib.request.urlopen(url)
+        res = res.read().decode("utf-8")
+        last_update = BeautifulSoup(res,"lxml")
+        last_update = last_update.find("time").getText()
+        last_update = datetime.strptime(last_update,"%Y-%m-%d %H:%M:%S")
+
+        # Required to convert from Human-readable to datetime
+        # last_update = str.lower(stats_entry[2])
+        # today = re.compile("hari ini")
+        # if(today.match(last_update)):
+        #     last_update = datetime.date.today()
 
         terjual = stats_entry[4]
 
