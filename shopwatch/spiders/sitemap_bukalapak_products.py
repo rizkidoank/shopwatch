@@ -73,6 +73,8 @@ class SitemapBukalapakProductsSpider(scrapy.Spider):
 
         terjual = stats_entry[4]
 
+        img = response.css("[itemprop='image']::attr('src')").extract_first()
+        print(img)
         print(name)
         print(price)
         print(currency)
