@@ -36,3 +36,4 @@ class Product(scrapy.Item):
     num_revs = scrapy.Field()
     num_discs = scrapy.Field()
     desc = scrapy.Field() 
+
