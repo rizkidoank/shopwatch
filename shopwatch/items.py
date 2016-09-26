@@ -15,7 +15,6 @@ class Shop(scrapy.Item):
     uri = scrapy.Field()
 
 class Product(scrapy.Item):
-    prod_id = scrapy.Field()
     url = scrapy.Field()
     name = scrapy.Field()
     price = scrapy.Field()
@@ -27,6 +26,6 @@ class Product(scrapy.Item):
     desc = scrapy.Field()
     owner_url = scrapy.Field()
     category = scrapy.Field()
+    site = scrapy.Field()
 
-class ProductTokopedia(scrapy.Item):
-    pass
+

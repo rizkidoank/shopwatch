@@ -1,69 +1,27 @@
 # -*- coding: utf-8 -*-
 import scrapy, urllib, re, json
 from shopwatch.items import Product
-from scrapy import Selector
+from scrapy import Selector,Request
 from scrapy_splash import SplashRequest
+from pymongo import MongoClient
 
 class TokopediaProductSpider(scrapy.Spider):
     name = "tokopedia_product"
     allowed_domains = ["tokopedia.com"]
 
-    splash_args = {
-        'html': 1,
-        'images': 0,
-        'png': 0,
-        'wait': 5.0
-    }
-
-    start_urls = (
-        'https://www.tokopedia.com/diagostore',
-    )
+    def start_requests(self):
+        client = MongoClient("localhost",27017)
+        db = client.shopwatch
+        products = db.products
+        owner_url = 'https://www.tokopedia.com/bakulgps'
+        for prod in products.find({'owner_url':owner_url}):
+            yield Request(prod['url'])
 
     def __init__(self):
         self.product = Product()
         self.shop_url = None
 
     def parse(self, response):
-        yield SplashRequest(
-            url=response.url,
-            callback=self.parse_product_lists,
-            endpoint='render.json',
-            args=self.splash_args
-        )
-
-    def parse_product_lists(self, response):
-        elm = response.css('div.pagination.text-right ul li a::attr("href")').extract()
-        products = response.css('#showcase-container div.grid-shop-product div.product').extract()
-        for product in products:
-            res = Selector(text=product)
-            p = Product()
-            url = res.css('div.product a::attr("href")').extract_first()
-            yield SplashRequest(
-                url=url,
-                callback=self.parse_product,
-                endpoint='render.json',
-                args=self.splash_args)
-
-        if (len(elm) == 1):
-            if (response.url.find("page") == -1):
-                next_url = elm[0]
-                yield SplashRequest(
-                    url=next_url,
-                    callback=self.parse_product_lists,
-                    endpoint='render.json',
-                    args=self.splash_args)
-            elif (response.url.find("page") > -1):
-                pass
-
-        elif ((len(elm) == 2) and (response.url.find("page") != -1)):
-            next_url = elm[1]
-            yield SplashRequest(
-                url=next_url,
-                callback=self.parse_product_lists,
-                endpoint='render.json',
-                args=self.splash_args)
-
-    def parse_product(self, response):
         # Product ID
         prod_id = response.css("#product-id::attr('value')").extract_first()
 
@@ -93,4 +51,30 @@ class TokopediaProductSpider(scrapy.Spider):
         desc = response.css('p[itemprop = "description"]::text').extract()
         desc = str.lower((' ').join(desc))
 
-        print(url, name, prod_id, view, item_sold, desc)
+        # Product image
+        img_url = response.css("img[itemprop='image']::attr('src')").extract_first()
+
+        # Product owner
+        owner_url = response.css("a#shop-name-info::attr('href')").extract_first()
+
+        #Product price
+        price = int((response.css('div.product-pricetag span[itemprop="price"]::text').extract_first().replace(".", "")))
+
+        # Product category
+        category = response.css("ul[itemprop='breadcrumb'] > li > h2 > a::text").extract()
+        category = category[len(category)-1]
+
+
+        self.product['url'] = url
+        self.product['name'] = name
+        self.product['price'] = price
+        self.product['currency'] = 'IDR'
+        self.product['seen'] = view
+        self.product['sold'] = item_sold
+        self.product['img_url'] = img_url
+        self.product['desc'] = desc
+        self.product['owner_url'] = owner_url
+        self.product['category'] = category
+        self.product['site'] = 'tokopedia'
+
+        yield self.product
