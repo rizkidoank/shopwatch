@@ -21,7 +21,10 @@ class MongoDBPipeline(object):
 
     def process_item(self, item, spider):
         if (isinstance(item,Shop)):
-            self.db.shops.insert(dict(item))
+           self.db.shops.insert(dict(item))
         elif (isinstance(item,Product)):
-            self.db.products.insert(dict(item))
+           if(self.db.products.find({'url':item['url']}).count() > 0):
+               self.db.products.update({'url':item['url']},dict(item))
+           else:
+               self.db.products.insert(dict(item))
         return item

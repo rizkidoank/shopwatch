@@ -35,17 +35,19 @@ class BukalapakProductsListSpider(scrapy.Spider):
         )
 
     def parse_product_lists(self, response):
-        elm = response.css('div.pagination.text-right ul li a::attr("href")').extract()
+        elm = response.css('a.next_page').extract()
         products = response.css("div.product-media a::attr('href')").extract()
+        self.shop_url = str(response.url).replace('/products','')
         for product in products:
-            print(product)
-            # res = Selector(text=product)
-            # p = Product()
-            # url = res.css('div.product a::attr("href")').extract_first()
-            # self.product['url'] = url
-            # self.product['owner_url'] = self.shop_url
-            # self.product['site'] = 'tokopedia'
-            # yield self.product
+            prod_url = str(product).replace('?from=list-product','')
+            p = Product()
+            self.product['url'] = prod_url
+            self.product['owner_url'] = self.shop_url
+            if(str(response.url).find('tokopedia')):
+                self.product['site'] = 'tokopedia'
+            elif(str(response.url).find('bukalapak')):
+                self.product['site'] = 'bukalapak'
+            yield self.product
 
             # if (len(elm) == 1):
             #     if (response.url.find("page") == -1):
