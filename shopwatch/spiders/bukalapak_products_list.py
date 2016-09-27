@@ -18,7 +18,7 @@ class BukalapakProductsListSpider(scrapy.Spider):
     }
 
     start_urls = (
-        'https://www.bukalapak.com/mitrakamera_/products',
+        'https://www.bukalapak.com/venusshop_ori/products',
     )
 
     def __init__(self):
@@ -35,36 +35,25 @@ class BukalapakProductsListSpider(scrapy.Spider):
         )
 
     def parse_product_lists(self, response):
-        elm = response.css('a.next_page').extract()
+        elm = response.css('a.next_page::attr("href")').extract()
         products = response.css("div.product-media a::attr('href')").extract()
-        self.shop_url = str(response.url).replace('/products','')
+        self.shop_url = str(response.url).replace('/products','').split('?')[0]
         for product in products:
             prod_url = str(product).replace('?from=list-product','')
             p = Product()
             self.product['url'] = prod_url
             self.product['owner_url'] = self.shop_url
-            if(str(response.url).find('tokopedia')):
+            if 'tokopedia' in response.url:
                 self.product['site'] = 'tokopedia'
-            elif(str(response.url).find('bukalapak')):
+            elif 'bukalapak' in response.url:
                 self.product['site'] = 'bukalapak'
             yield self.product
 
-            # if (len(elm) == 1):
-            #     if (response.url.find("page") == -1):
-            #         next_url = elm[0]
-            #         yield SplashRequest(
-            #             url=next_url,
-            #             callback=self.parse_product_lists,
-            #             endpoint='render.json',
-            #             args=self.splash_args)
-            #     elif (response.url.find("page") > -1):
-            #         pass
-            #
-            # elif ((len(elm) == 2) and (response.url.find("page") != -1)):
-            #     next_url = elm[1]
-            #     yield SplashRequest(
-            #         url=next_url,
-            #         callback=self.parse_product_lists,
-            #         endpoint='render.json',
-            #         args=self.splash_args)
-
+            if (len(elm) == 1):
+                str_url = str(elm[0]).split('&')[0]
+                next_url = 'https://www.bukalapak.com'+str_url
+                yield SplashRequest(
+                    url=next_url,
+                    callback=self.parse_product_lists,
+                    endpoint='render.json',
+                    args=self.splash_args)
